@@ -1,5 +1,6 @@
 package com.hob.lpd.film.controller;
 
+import com.dream.app.common.Result;
 import com.hob.lpd.PropertyCommonDB;
 import com.hob.lpd.film.services.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,9 @@ public class test {
 
 
     @RequestMapping("/test")
-    public String test(){
+    public Result test(){
+
         testService.search();
-        return "1";
+        return new Result("1", "1", "111");
     }
 }

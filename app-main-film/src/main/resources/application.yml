@@ -1,5 +1,31 @@
 spring:
   application:
-    name: eureka-client
+    name: app-main-film    # 项目名称尽量用小写
+  http:
+    multipart:
+      #文件上传大小限制在2MB以内
+      max-file-size: 2MB
+      max-request-size: 2MB
+  datasource:
+      initialize: false
+      primary:
+        url: @db.url@?useLegacyDatetimeCode=false&serverTimezone=UTC
+        username: @db.user@
+        password: @db.pass@
+        driverClassName: com.mysql.cj.jdbc.Driver
+        type: com.alibaba.druid.pool.DruidDataSource
+        maxActive: 100 #最大并发量
+        maxWait: 60000 # 配置获取连接等待超时的时间
+        timeBetweenEvictionRunsMillis: 60000 # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+        minEvictableIdleTimeMillis: 300000 # 配置一个连接在池中最小生存的时间，单位是毫秒
+        validationQuery: SELECT 1 FROM DUAL
+        testOnBorrow: false
+        testOnReturn: false
+        poolPreparedStatements: true # 打开PSCache，并且指定每个连接上PSCache的大小
+        maxPoolPreparedStatementPerConnectionSize: 20
 server:
   port: 1002
+
+
+
+

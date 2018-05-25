@@ -11,33 +11,34 @@
     <description></description>
 
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.4.RELEASE</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <groupId>com.dream</groupId>
+        <artifactId>app-pom</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <properties>
         <java.version>1.8</java.version>
         <start-class>com.hob.lpd.AppMainFilmApplication</start-class>
+        <app-common.version>0.0.1-SNAPSHOT</app-common.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <groupId>com.dream</groupId>
+            <artifactId>app-common</artifactId>
+            <version>${app-common.version}</version>
         </dependency>
-        <!--数据库相关-->
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.17</version>
-            <scope>runtime</scope>
-        </dependency>
+
         <dependency>
             <groupId>com.dream</groupId>
             <artifactId>common-db</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${common.db.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.11.2</version>
         </dependency>
         <!--工具类相关-->
         <dependency>
@@ -61,7 +62,7 @@
 
     <profiles>
         <profile>
-            <id>dev</id>
+            <id>test</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
@@ -69,6 +70,7 @@
                 <db.url>jdbc:mysql://localhost:3306/liwei</db.url>
                 <db.user>root</db.user>
                 <db.pass>xiaowei</db.pass>
+                <logLevel>INFO</logLevel>
             </properties>
         </profile>
     </profiles>
