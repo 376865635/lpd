@@ -39,14 +39,13 @@ public class AppConfig{
     public @Bean IDBPool pool(DataSource primaryDataSource, OkHttpUtils okHttpUtils) {
         DBPool pool = new DBPool();
         pool.setDataSource(primaryDataSource);
-//        pool.setExceptionLogger( (e,position,sql,param) -> CacheIDBService.bulid(pool, okHttpUtils, springApplicationName, localStatus, e,position,sql,param) );
         return pool;
     }
 
 
-//    public @Bean BaseDictDao dianyingContentDao(){
-//        return new BaseDictDao(pool, "dianying_content");
-//    }
+    public @Bean BaseDictDao dianyingContentDao(){
+        return new BaseDictDao(pool, "dianying_content");
+    }
 
     public @Bean BaseDictDao dianyingIdDao(){
         return new BaseDictDao(pool, "dianying_id");

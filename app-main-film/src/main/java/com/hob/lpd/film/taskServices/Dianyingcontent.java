@@ -24,11 +24,10 @@ public class Dianyingcontent implements IService {
     @Autowired
     private BaseDictDao dianyingContentDao;
 
-//    @Autowired
-//    private OkHttpUtils okHttpUtils;
+    @Autowired
+    private OkHttpUtils okHttpUtils;
 
     public void process() {
-
         for(int i = 1; i <= 276; i++){
             System.out.println("第" + i + "页");
             List<Map<String, String>> list = getList(i);
@@ -36,23 +35,19 @@ public class Dianyingcontent implements IService {
                 if(temp == null || temp.isEmpty()){
                     continue;
                 }
-                String d_id = temp.get("d_id");
-                getDoc(d_id);
+                String film_id = temp.get("film_id");
+                getDoc(film_id);
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-
-
         }
-
-
     }
 
     private List<Map<String,String>> getList(int pageNum){
-        return dianyingContentDao.rawQuery("SELECT d_id from dianying_id where page_num = ?", new String[]{pageNum + ""});
+        return dianyingContentDao.rawQuery("SELECT film_id from dianying_id where page_num = ?", new String[]{pageNum + ""});
     }
 
 
@@ -60,26 +55,24 @@ public class Dianyingcontent implements IService {
 
 
 
-    OkHttpUtils okHttpUtils = new OkHttpUtils();
     String baseUrl = "http://www.btbtt88.com/thread-index-fid-1-tid-";
     String suffix = ".htm";
     String downBaseUrl = "http://www.btbtt88.com/attach-download-fid-1-aid-";
-    String downSuffix = ".htm";
+    String downSuffix = suffix;
 
 
 
 
 
-    private int getDoc(String d_id){
+    private int getDoc(String film_id){
         Document doc = null;
         try {
-            String url = baseUrl + d_id + suffix;
-
+            String url = baseUrl + film_id + suffix;
             String content = okHttpUtils.doGetReturnString(url);
             doc = Jsoup.parse(content);
-            Element elementTitle = doc.getElementById("subject_" + d_id);
+            Element elementTitle = doc.getElementById("subject_" + film_id);
             if(elementTitle == null){
-                System.out.println("subject_" + d_id + "is null");
+                System.out.println("subject_" + film_id + "is null");
                 return 0;
             }
             String title = elementTitle.text();
@@ -94,22 +87,17 @@ public class Dianyingcontent implements IService {
                     String realDownUrl = downBaseUrl+ urlArr.substring(start,end) + downSuffix;
                     Map<String,String> data = new HashMap<>();
                     data.put("title",title);
-                    data.put("d_id",d_id + "");
+                    data.put("film_id",film_id + "");
                     data.put("content",content);
                     data.put("down_url",realDownUrl);
-                    System.out.println(dianyingContentDao.insert(data));
+                    dianyingContentDao.rawQueryForInt("select count(*) from dianying_content where ")
+                    int result = dianyingContentDao.insert(data);
                 }
-
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
         return 1;
     }
 
-    public static void main(String[] args) throws ParseException {
-
-//        new Dianyingcontent().getDoc(13089);
-    }
 }

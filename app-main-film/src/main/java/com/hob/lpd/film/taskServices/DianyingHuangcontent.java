@@ -44,15 +44,13 @@ public class DianyingHuangcontent implements IService{
                     e.printStackTrace();
                 }
             }
-
-
         }
 
 
     }
 
     private List<Map<String,String>> getList(int pageNum){
-        return dianyingContentDao.rawQuery("SELECT d_id FROM `dianying_id` where type = 1 and page_num = ?", new String[]{pageNum + ""});
+        return dianyingContentDao.rawQuery("SELECT d_id FROM `dianying_id` where type = 1 and page_num = ?", new String[]{ pageNum + ""});
     }
 
 
