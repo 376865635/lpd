@@ -2,6 +2,7 @@ package com.hob.lpd.film.taskServices;
 
 import com.dream.common.db.dao.BaseDictDao;
 import com.dream.common.utils.okhttp.OkHttpUtils;
+import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -9,7 +10,6 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.Map;
 @Service
 public class Dianyingcontent implements IService {
 
-
+    private final static Logger logger = Logger.getLogger(Dianyingcontent.class);
 
     @Autowired
     private BaseDictDao dianyingContentDao;
@@ -36,7 +36,7 @@ public class Dianyingcontent implements IService {
                     continue;
                 }
                 String film_id = temp.get("film_id");
-                getDoc(film_id);
+                getContentDoc(film_id);
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
@@ -64,7 +64,7 @@ public class Dianyingcontent implements IService {
 
 
 
-    private int getDoc(String film_id){
+    private int getContentDoc(String film_id){
         Document doc = null;
         try {
             String url = baseUrl + film_id + suffix;
@@ -90,8 +90,11 @@ public class Dianyingcontent implements IService {
                     data.put("film_id",film_id + "");
                     data.put("content",content);
                     data.put("down_url",realDownUrl);
-                    dianyingContentDao.rawQueryForInt("select count(*) from dianying_content where ")
-                    int result = dianyingContentDao.insert(data);
+                    boolean isExist = dianyingContentDao.rawQueryForInt("select count(*) from dianying_content where film_id = ?", new String[]{film_id}) > 0 ? true : false;
+                    if(!isExist){
+                        int result = dianyingContentDao.insert(data);
+                        logger.info("新增电影content!!! film_id ==" + film_id);
+                    }
                 }
             }
         } catch (Exception e) {

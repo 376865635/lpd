@@ -31,17 +31,22 @@ public class DianyingId implements IService {
 
     @Autowired
     private BaseDictDao dianyingIdDao;
+    @Autowired
+    private BaseDictDao dianyingContentDao;
 
     @Autowired
     private OkHttpUtils okHttpUtils;
 
-    String baseUrl = "http://www.btbtt88.com/forum-index-fid-1-page-";
-    String vipbaseUrl = "http://www.btbtt88.com/forum-index-fid-9-page-";
+    String baseIdUrl = "http://www.btbtt88.com/forum-index-fid-1-page-";
+    String baseContentUrl = "http://www.btbtt88.com/thread-index-fid-1-tid-";
+    String downBaseUrl = "http://www.btbtt88.com/attach-download-fid-1-aid-";
     String suffix = ".htm";
+
+    String vipbaseUrl = "http://www.btbtt88.com/forum-index-fid-9-page-";
     public void process() {
-        for(int i = 1; i <= 276; i++){
+        for(int i = 1; i <= 2; i++){
             System.out.println("第" + i + "页");
-            getDoc(i, baseUrl);
+            getIDDoc(i, baseIdUrl);
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -51,7 +56,7 @@ public class DianyingId implements IService {
     }
 
 
-    private int getDoc(int index, String baseUrl){
+    private int getIDDoc(int index, String baseUrl){
         Document doc = null;
         try {
             String url = baseUrl + index + suffix;
@@ -75,13 +80,52 @@ public class DianyingId implements IService {
                     int result = dianyingIdDao.insert(data);
                     String isSuccess = result > 0 ? "==成功！！！" : "==失败！！！";
                     logger.info("新增电影id ==" + tid + isSuccess);
+                    getContentDoc(tid);
                 }
-                logger.info("电影id ==" + tid + "==存在！！！");
             }
         } catch (Exception e) {
             logger.error("DianyingId 获取电影id 失败！！!" + e.getMessage());
         }
         return 0;
+    }
+
+    private int getContentDoc(String film_id){
+        Document doc = null;
+        try {
+            String url = baseContentUrl + film_id + suffix;
+            String content = okHttpUtils.doGetReturnString(url);
+            doc = Jsoup.parse(content);
+            Element elementTitle = doc.getElementById("subject_" + film_id);
+            if(elementTitle == null){
+                System.out.println("subject_" + film_id + "is null");
+                return 0;
+            }
+            String title = elementTitle.text();
+            Elements a = doc.getElementsByClass("ajaxdialog");
+            Iterator it = a.iterator();
+            while (it.hasNext()){
+                Element element = (Element)it.next();
+                String urlArr = element.attr("href");
+                if(urlArr.contains("attach-dialog-fid-1-aid-")){
+                    int start = urlArr.indexOf("attach-dialog-fid-1-aid-") +24;
+                    int end = urlArr.indexOf("-ajax-1.htm");
+                    String realDownUrl = downBaseUrl+ urlArr.substring(start,end) + suffix;
+                    Map<String,String> data = new HashMap<>();
+                    data.put("title",title);
+                    data.put("film_id",film_id + "");
+                    data.put("content",content);
+                    data.put("down_url",realDownUrl);
+                    boolean isExist = dianyingContentDao.rawQueryForInt("select count(*) from dianying_content where film_id = ?", new String[]{film_id}) > 0 ? true : false;
+                    if(!isExist){
+                        int result = dianyingContentDao.insert(data);
+                        logger.info("新增电影content!!! film_id ==" + film_id);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 1;
     }
 
 
